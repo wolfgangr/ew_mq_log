@@ -3,6 +3,9 @@
 use warnings;
 use strict;
 use Net::MQTT::Simple;
+use JSON;
+use Data::Dumper;
+
 
 my $mqtt_server = "homeserver.rosner.lokal";
 my $ew_topic = "wetter/test";
@@ -11,6 +14,8 @@ my $ew_topic = "wetter/test";
 
 
 my $mqtt = Net::MQTT::Simple->new($mqtt_server);
+my $json = JSON->new->allow_nonref;
+
 
 $mqtt->run(
         $ew_topic => \&parse_ecowitt,
@@ -30,8 +35,11 @@ sub parse_default  {
 
 
 sub parse_ecowitt {
-     my ($topic, $message) = @_;
-     print "ecowitt data: \n $message\n";
+    my ($topic, $message) = @_;
+    print "ecowitt data: \n $message\n";
+
+    my $hashref = $json->decode( $message );
+    print Dumper($hashref);	
  }
 
 
