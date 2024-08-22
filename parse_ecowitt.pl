@@ -7,12 +7,8 @@ use Net::MQTT::Simple;
 my $mqtt_server = "homeserver.rosner.lokal";
 my $ew_topic = "wetter/test";
 
+# ======= eo config ============
 
-
-# sub parse_ecowitt {
-#      my ($topic, $message) = @_;
-#      print "ecowitt data: \n $message\n";
-#  }
 
 my $mqtt = Net::MQTT::Simple->new($mqtt_server);
 
@@ -21,11 +17,6 @@ $mqtt->run(
         # "#" => \&parse_default,
          "#" => \&noop,
 
-        # "#" => sub {
-        #     my ($topic, $message) = @_;
-        #     print "[$topic] $message\n";
-        # },
-	# $ew_topic => parse_ecowitt
     );
 
 #======== subs 
