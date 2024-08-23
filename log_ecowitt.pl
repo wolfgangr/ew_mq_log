@@ -39,12 +39,12 @@ my $dbh = DBI->connect($dsn, $user, $passwd)
 	|| die ("Could not connect to database: $DBI::errstr\n");
 
 debug_print(1,  "\t...connected to database \n\n") ;
-exit;
+# exit;
 
 $mqtt->run(
-        $ew_topic => \&parse_ecowitt,
+        $ew_topic => \&do_ecowitt,
         # "#" => \&parse_default,
-         "#" => \&noop,
+        "#" => \&noop,
 
     );
 
@@ -57,13 +57,19 @@ sub parse_default  {
             print "default: [$topic] $message\n";
         }
 
+sub do_ecowitt {
+  my $hr = parse_ecowitt(@_);	
+  debug_print(3, Dumper($hr)); 
+}
+
 
 sub parse_ecowitt {
     my ($topic, $message) = @_;
-    print "ecowitt data: \n $message\n";
+    debug_print(3, "ecowitt data: \n $message\n");
 
     my $hashref = $json->decode( $message );
-    print Dumper($hashref);	
+    return $hashref;
+    # print Dumper($hashref);	
  }
 
 
