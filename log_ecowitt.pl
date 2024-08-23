@@ -75,6 +75,10 @@ sub parse_ecowitt {
 }
 
 sub log_ecowitt {
+  my $sql = build_ew_SQL(@_[0]);
+}
+
+sub build_ew_SQL {
   my $timestamp = strftime "%Y-%m-%d %H:%M:%S", gmtime;
   my $data = pop @_;
 
@@ -93,21 +97,9 @@ sub log_ecowitt {
   $sql .= sprintf (",\n `sol_rad`    = '%.1f' ", $data->{'solarradiation'});
   $sql .= sprintf (",\n `uv_rad`     = '%2d'  ", $data->{'uv'});
   $sql .= sprintf (",\n `batt`    = '%2d'  ",  0);
-#  $sql .= " ) VALUES ( ";
-#  $sql .= sprintf ("'%s' , ",   $timestamp);
-#  $sql .= sprintf ("'%3d' , ",  $station);
-#  $sql .= sprintf ("'%3d' , ",  $data->{''});
-#  $sql .= sprintf ("'%3d' , ",  $data->{'humidity'});
-#  $sql .= sprintf ("'%.1f' , ", $data->{'temp'});
-#  $sql .= sprintf ("'%.1f' , ", $data->{'windspeed'});
-#  $sql .= sprintf ("'%.1f' , ", $data->{'windgust'});
-#  $sql .= sprintf ("'%.1f' , ", $data->{'winddir'}); 
-#  $sql .= sprintf ("'%.1f' , ", $data->{'dailyrain'});
-#  $sql .= sprintf ("'%1d'   ",  0); # $data->{''});
   $sql .= " ;\n" ;
-
   debug_print(3, $sql);
-  exit;
+  return $sql
 }
 
 
