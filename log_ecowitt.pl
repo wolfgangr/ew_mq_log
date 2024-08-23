@@ -76,6 +76,7 @@ sub parse_ecowitt {
 
 sub log_ecowitt {
   my $sql = build_ew_SQL(@_[0]);
+  debug_print(3, $sql);
 }
 
 sub build_ew_SQL {
@@ -85,20 +86,20 @@ sub build_ew_SQL {
   my $sql = "INSERT INTO `raw` SET";
   $sql .= sprintf (" \n `idx`        = '%s'   ", $timestamp); 
   $sql .= sprintf (",\n `station`    = '%3d'  ", $station);
-  $sql .= sprintf (",\n `hum_out`    = '%3d'  ", $data->{'humidity'});
-  $sql .= sprintf (",\n `temp_out`   = '%.1f' ", $data->{'temp'});
-  $sql .= sprintf (",\n `dewpoint`   = '%.1f' ", $data->{'dewpoint'});
-  $sql .= sprintf (",\n `hum_abs`    = '%.1f' ", $data->{'humidityabs'});
-  $sql .= sprintf (",\n `wind_ave`   = '%.1f' ", $data->{'windspeed'});
-  $sql .= sprintf (",\n `wind_gust`  = '%.1f' ", $data->{'windgust'});
-  $sql .= sprintf (",\n `wind_dir`   = '%3d'  ", $data->{'winddir'});
-  $sql .= sprintf (",\n `rain_count` = '%.1f' ", $data->{'dailyrain'});
-  $sql .= sprintf (",\n `baro_abs`   = '%.1f' ", $data->{'baromabs'});
-  $sql .= sprintf (",\n `sol_rad`    = '%.1f' ", $data->{'solarradiation'});
-  $sql .= sprintf (",\n `uv_rad`     = '%2d'  ", $data->{'uv'});
+  $sql .= sprintf (",\n `hum_out`    = '%s'  ", $data->{'humidity'});
+  $sql .= sprintf (",\n `temp_out`   = '%s' ", $data->{'temp'});
+  $sql .= sprintf (",\n `dewpoint`   = '%s' ", $data->{'dewpoint'});
+  $sql .= sprintf (",\n `hum_abs`    = '%s' ", $data->{'humidityabs'});
+  $sql .= sprintf (",\n `wind_ave`   = '%s' ", $data->{'windspeed'});
+  $sql .= sprintf (",\n `wind_gust`  = '%s' ", $data->{'windgust'});
+  $sql .= sprintf (",\n `wind_dir`   = '%s'  ", $data->{'winddir'});
+  $sql .= sprintf (",\n `rain_count` = '%s' ", $data->{'dailyrain'});
+  $sql .= sprintf (",\n `baro_abs`   = '%s' ", $data->{'baromabs'});
+  $sql .= sprintf (",\n `sol_rad`    = '%s' ", $data->{'solarradiation'});
+  $sql .= sprintf (",\n `uv_rad`     = '%s'  ", $data->{'uv'});
   $sql .= sprintf (",\n `batt`    = '%2d'  ",  0);
   $sql .= " ;\n" ;
-  debug_print(3, $sql);
+  # debug_print(3, $sql);
   return $sql
 }
 
