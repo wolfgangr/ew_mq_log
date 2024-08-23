@@ -11,6 +11,7 @@ use POSIX qw(strftime);	# time string formatting
 
 my $mqtt_server = "homeserver.rosner.lokal";
 my $ew_topic = "wetter/test";
+my $station = 1;
 my $db_creds ="my.cnf";
 my $debug = 3;
 
@@ -60,6 +61,7 @@ sub parse_default  {
 sub do_ecowitt {
   my $hr = parse_ecowitt(@_);	
   debug_print(3, Dumper($hr)); 
+  log_ecowitt($hr);
 }
 
 
@@ -70,7 +72,36 @@ sub parse_ecowitt {
     my $hashref = $json->decode( $message );
     return $hashref;
     # print Dumper($hashref);	
- }
+}
+
+sub log_ecowitt {
+  my $timestamp = strftime "%Y-%m-%d %H:%M:%S", gmtime;
+  my $data = pop @_;
+
+  my $sql = "INSERT INTO `raw` (";
+  $sql .= "`idx` , `station`";
+  $sql .= " ,  `hum_out` , `temp_out` , `dewpoint` , `hum_abs`";
+  $sql .= " , `wind_ave` , `wind_gust` , `wind_dir` , `rain_count`";
+  $sql .= " , `baro_abs` , `sol_rad` , `uv_rad`";
+  $sql .= " , `lo_batt`";
+  $sql .= " ) VALUES ( ";
+  $sql .= sprintf ("'%s' , ",   $timestamp);
+  $sql .= sprintf ("'%3d' , ",  $station);
+#  $sql .= sprintf ("'%3d' , ",  $data->{''});
+  $sql .= sprintf ("'%3d' , ",  $data->{'humidity'});
+  $sql .= sprintf ("'%.1f' , ", $data->{'temp'});
+  $sql .= sprintf ("'%.1f' , ", $data->{'windspeed'});
+  $sql .= sprintf ("'%.1f' , ", $data->{'windgust'});
+  $sql .= sprintf ("'%.1f' , ", $data->{'winddir'}); 
+  $sql .= sprintf ("'%.1f' , ", $data->{'dailyrain'});
+  $sql .= sprintf ("'%1d'   ",  0); # $data->{''});
+  $sql .= " );" ;
+
+  debug_print(3, $sql);
+  exit;
+}
+
+
 
 
 #--- parse db credential file
