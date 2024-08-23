@@ -77,6 +77,10 @@ sub parse_ecowitt {
 sub log_ecowitt {
   my $sql = build_ew_SQL(@_[0]);
   debug_print(3, $sql);
+
+  # execute sql statement
+  my $affected = $dbh->do($sql);
+  debug_print (2, "\t$affected Datasets updated\n");
 }
 
 sub build_ew_SQL {
@@ -97,7 +101,7 @@ sub build_ew_SQL {
   $sql .= sprintf (",\n `baro_abs`   = '%s' ", $data->{'baromabs'});
   $sql .= sprintf (",\n `sol_rad`    = '%s' ", $data->{'solarradiation'});
   $sql .= sprintf (",\n `uv_rad`     = '%s'  ", $data->{'uv'});
-  $sql .= sprintf (",\n `batt`    = '%2d'  ",  0);
+  $sql .= sprintf (",\n `batt`    = '%2d'  ",  ($data->{'wh65batt'} eq 'OFF') ? 99 : 0   ); 
   $sql .= " ;\n" ;
   # debug_print(3, $sql);
   return $sql
