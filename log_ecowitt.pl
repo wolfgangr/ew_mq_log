@@ -101,7 +101,7 @@ sub build_ew_SQL {
   $sql .= sprintf (",\n `baro_abs`   = '%s' ", $data->{'baromabs'});
   $sql .= sprintf (",\n `sol_rad`    = '%s' ", $data->{'solarradiation'});
   $sql .= sprintf (",\n `uv_rad`     = '%s'  ", $data->{'uv'});
-  $sql .= sprintf (",\n `batt`    = '%2d'  ",  ($data->{'wh65batt'} eq 'OFF') ? 99 : 0   ); 
+  $sql .= sprintf (",\n `batt`       = '%s'  ", $data->{'wh65batt'}); 
   $sql .= " ;\n" ;
   # debug_print(3, $sql);
   return $sql
