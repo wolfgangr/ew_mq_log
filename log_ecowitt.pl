@@ -84,11 +84,12 @@ sub log_ecowitt {
 }
 
 sub build_ew_SQL {
-  my $timestamp = strftime "%Y-%m-%d %H:%M:%S", gmtime;
+#  my $timestamp = strftime "%Y-%m-%d %H:%M:%S", gmtime;
   my $data = pop @_;
 
   my $sql = "INSERT INTO `raw` SET";
-  $sql .= sprintf (" \n `idx`        = '%s'   ", $timestamp); 
+#  $sql .= sprintf (" \n `idx`        = '%s'   ", $timestamp); 
+  $sql .= sprintf (" \n `idx`        = '%s'   ", $data->{'dateutc'});
   $sql .= sprintf (",\n `station`    = '%3d'  ", $station);
   $sql .= sprintf (",\n `hum_out`    = '%s'  ", $data->{'humidity'});
   $sql .= sprintf (",\n `temp_out`   = '%s' ", $data->{'temp'});
