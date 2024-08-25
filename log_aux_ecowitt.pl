@@ -60,16 +60,17 @@ sub parse_default  {
 
 sub do_ecowitt {
   my $hr = parse_ecowitt(@_);	
-  debug_print(3, Dumper($hr)); 
+  debug_print(4, Dumper($hr)); 
   # log_ecowitt($hr);
-  parse_aux($hr);
+  my $auxs = parse_aux($hr);
+  debug_print(3, Dumper($auxs));
   exit;
 }
 
 
 sub parse_ecowitt {
     my ($topic, $message) = @_;
-    debug_print(3, "ecowitt data: \n $message\n");
+    debug_print(4, "ecowitt data: \n $message\n");
 
     my $hashref = $json->decode( $message );
     return $hashref;
@@ -82,15 +83,16 @@ sub parse_aux {
   my @sensors = ();
   foreach my $key (keys %$data) {
     next unless ( $key =~  /^((?:temp)|(?:humidity)|(?:batt))((?:\d)|(?:in))$/ ) ;
-    print ($key, " - ");
+    # print ($key, " - ");
     if ($1 and $2) {
       my $ix = ($2 eq 'in') ? 0 : $2 ;
-      $sensors[$ix] = {} unless $sensors[$1];
+      # $sensors[$ix] = {} unless $sensors[$ix];
       $sensors[$ix]{$1} = $data->{$key} ;
     }
   }
-  print "\n";
-  print (Dumper(\@sensors));
+  # print "\n";
+  # print (Dumper(\@sensors));
+  return \@sensors;
 }
 
 sub log_ecowitt {
