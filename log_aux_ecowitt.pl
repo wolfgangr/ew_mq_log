@@ -74,7 +74,7 @@ sub do_ecowitt {
 	 scalar(keys %{$$auxs[$sn]} )  ); 
     log_aux( $hr->{'dateutc'}, $station, $sn,  $$auxs[$sn]  );
   }
-  exit;
+  # exit;
 }
 
 
@@ -112,6 +112,11 @@ sub log_aux {
   $sql .= sprintf (",\n `station`    = '%3d'  ", $stat);
   $sql .= sprintf (",\n `sensor`     = '%3d'  ", $sn);
   # $sql .= sprintf (",\n `hum_out`    = '%s'  ", $data->{'humidity'});
+  # foreach my $k (keys %$shr) {
+  while (my ($k, $v) = each %$shr) {
+    $sql .= sprintf (",\n `%s`     = '%s'  ", $k, $v);
+  }
+
   $sql .= " ;\n" ;
 
   debug_print(3, $sql);
