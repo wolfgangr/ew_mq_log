@@ -64,6 +64,10 @@ sub do_ecowitt {
   # log_ecowitt($hr);
   my $auxs = parse_aux($hr);
   debug_print(3, Dumper($auxs));
+  for my $sn (0 .. $#$auxs) {
+    printf ("dummy do sensor number %d -> %s \n", $sn, 
+	( (defined($$auxs[$sn])) ? scalar(%$auxs[$sn]) : -1 ) ); 
+  }
   exit;
 }
 
