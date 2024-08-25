@@ -61,12 +61,18 @@ sub parse_default  {
 sub do_ecowitt {
   my $hr = parse_ecowitt(@_);	
   debug_print(4, Dumper($hr)); 
+  # disable for dev of aux sensor stuff
   # log_ecowitt($hr);
+
+  # parse and process aux sensor data
   my $auxs = parse_aux($hr);
   debug_print(3, Dumper($auxs));
+
   for my $sn (0 .. $#$auxs) {
+    next unless (defined($$auxs[$sn]));   
     printf ("dummy do sensor number %d -> %s \n", $sn, 
-	( (defined($$auxs[$sn])) ? scalar(%$auxs[$sn]) : -1 ) ); 
+	 scalar(keys %{$$auxs[$sn]} )  ); 
+    log_aux( $hr->{'dateutc'}, $station, $sn,  $$auxs[$sn]  );
   }
   exit;
 }
@@ -78,7 +84,6 @@ sub parse_ecowitt {
 
     my $hashref = $json->decode( $message );
     return $hashref;
-    # print Dumper($hashref);	
 }
 
 # \@sensors =  parse_aux($json_hashref)
@@ -87,17 +92,35 @@ sub parse_aux {
   my @sensors = ();
   foreach my $key (keys %$data) {
     next unless ( $key =~  /^((?:temp)|(?:humidity)|(?:batt))((?:\d)|(?:in))$/ ) ;
-    # print ($key, " - ");
     if ($1 and $2) {
       my $ix = ($2 eq 'in') ? 0 : $2 ;
-      # $sensors[$ix] = {} unless $sensors[$ix];
       $sensors[$ix]{$1} = $data->{$key} ;
     }
   }
-  # print "\n";
-  # print (Dumper(\@sensors));
   return \@sensors;
 }
+
+# log single aux sensor
+# log_aux( idx, station#, sensor#, data-hash)
+sub log_aux {
+  # print (Dumper (\@_));
+  my ($idx, $stat, $sn, $shr) = @_;
+  print (Dumper($idx, $stat, $sn, $shr));
+
+  my $sql = "INSERT INTO `aux_th` SET";
+  $sql .= sprintf (" \n `idx`        = '%s'   ", $idx);
+  $sql .= sprintf (",\n `station`    = '%3d'  ", $stat);
+  $sql .= sprintf (",\n `sensor`     = '%3d'  ", $sn);
+  # $sql .= sprintf (",\n `hum_out`    = '%s'  ", $data->{'humidity'});
+  $sql .= " ;\n" ;
+
+  debug_print(3, $sql);
+  # execute sql statement
+  my $affected = $dbh->do($sql);
+  debug_print (2, "\t$affected Datasets of sensors updated\n");
+ 
+}
+
 
 sub log_ecowitt {
   my $sql = build_ew_SQL(@_[0]);
