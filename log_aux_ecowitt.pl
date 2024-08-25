@@ -175,6 +175,46 @@ sub pub_aux {
 		$stat, $sn, $idx, $epocs));
   debug_print(3, Dumper($shr));
 
+  CORE::state $last_auxs_pub = []; 
+  my $reason = "";
+
+  print " ~~~~~==== entered pub_aux ====~~~~~ \n"; 
+  if ( ! defined ($$last_auxs_pub[$sn])  )  {
+    print "do the >online< thing\n";
+    $reason = "online";
+    return;
+  }
+
+  if ( 0  )  {  # ### TBD ###
+    print "do the >offline< thing\n";
+    $reason = "offline";
+  }
+
+
+  if ($epocs - $$last_auxs_pub[$sn]->{'epocs'} >= $aux_dtime) {
+    print "do the >timeout< thing\n";
+    $reason = "max_time";
+  } 
+
+  if ( abs( $shr->{'temp'} - $$last_auxs_pub[$sn]->{'temp'} ) >= $aux_dtemp) { 
+    print "do the >temp diff< thing\n";
+    $reason = "temp_change";
+  }
+
+  if ( abs( $shr->{'humidty'} - $$last_auxs_pub[$sn]->{'humidity'} ) >= $aux_dhum) {
+    print "do the >humidity diff< thing\n";
+    $reason = "hum_change";
+  }
+
+  if (  $shr->{'batt'} ne $$last_auxs_pub[$sn]->{'batt'} ) {
+    print "do the >batt diff< thing\n";
+    $reason = "batt_change";
+  }
+
+
+
+
+
 }
 
 #----------------------
