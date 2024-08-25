@@ -7,11 +7,13 @@ use JSON;
 use Data::Dumper;
 use DBD::mysql;	
 use POSIX qw(strftime);	# time string formatting
+use Time::Piece; # from POSIX time as delivered by the station to epocs for calculation
 
 
 my $mqtt_server = "homeserver.rosner.lokal";
 my $ew_topic = "wetter/test";
 my $station = 1;
+my $timefmt =  '%Y-%m-%d %H:%M:%S';
 
 my $aux_topic = "wetter/pleussen/aux";
 my $aux_dtime = 600 ; # max time in s between messages if nothing special happens
@@ -95,6 +97,10 @@ sub do_auxs {
   my $auxs = parse_aux($hr);
   CORE::state $old_auxs = []; # \() ; # static, ininitialized only once
 
+  # calc epoch time once for repeated use
+  my $dt = Time::Piece->strptime($hr->{'dateutc'}, $timefmt);
+  my $dt_epoc = $dt->epoch;
+
   debug_print(2, sprintf("aux sensor update at %s\n", $hr->{'dateutc'}));
   debug_print(4, Dumper($auxs));
 
@@ -114,7 +120,7 @@ sub do_auxs {
     log_aux( $hr->{'dateutc'}, $station, $sn,  $$auxs[$sn]  );
 
     debug_print(3, "       ... sensor changed, check pub conditions\n"); 
-    pub_aux( $hr->{'dateutc'}, $station, $sn,  $$auxs[$sn]  );
+    pub_aux( $dt_epoc, $hr->{'dateutc'}, $station, $sn,  $$auxs[$sn]  );
 
   }
 
@@ -164,8 +170,9 @@ sub log_aux {
 
 #  pub_aux( $hr->{'dateutc'}, $station, $sn,  $$auxs[$sn]  );
 sub pub_aux {
-  my ($idx, $stat, $sn, $shr) = @_;
-  debug_print(2, sprintf("--- pub_aux - station: %d, sensor: %d, utc-time: %s\n", $stat, $sn, $idx));
+  my ($epocs, $idx, $stat, $sn, $shr) = @_;
+  debug_print(2, sprintf("--- pub_aux - station: %d, sensor: %d, utc-time: %s, epocs: %d\n", 
+		$stat, $sn, $idx, $epocs));
   debug_print(3, Dumper($shr));
 
 }
