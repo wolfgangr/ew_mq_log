@@ -90,26 +90,28 @@ sub parse_ecowitt {
 sub do_auxs {
   my $hr = shift @_;
   my $auxs = parse_aux($hr);
-
-  # no strict "vars";
   CORE::state $old_auxs = []; # \() ; # static, ininitialized only once
-  # use strict "vars";
 
-  debug_print(3, Dumper($auxs));
+  debug_print(2, sprintf("aux sensor update at %s\n", $hr->{'dateutc'}));
+  debug_print(4, Dumper($auxs));
 
   for my $sn (0 .. $#$auxs) {
     next unless (defined($$auxs[$sn]));
+
+    printf "do sensor number %d -> %s \n", $sn,
+         scalar(keys %{$$auxs[$sn]} )  ;
+
     # skip update if values haven't changed
+    # "     ... checking sensor change .... \n";
     if (defined($$old_auxs[$sn])) {
       next if eq_hashes($$auxs[$sn] , $$old_auxs[$sn]);
     }
-    printf "dummy do sensor number %d -> %s \n", $sn,
-         scalar(keys %{$$auxs[$sn]} )  ;
+    
+    print "       ... sensor changed, perform update\n";
     log_aux( $hr->{'dateutc'}, $station, $sn,  $$auxs[$sn]  );
   }
 
   $old_auxs = $auxs ; # hope that assigning ref effectively clones
-  # use strict "vars";
 }
 
 
@@ -221,20 +223,20 @@ sub parse_DB_creds {
 # returns 1 if they are equal, 0 in not
 sub eq_hashes {
   my ($a, $b) = @_;
-  print "enter eq_hashes\n";
-  print Dumper($a, $b);
-  print "eq_hashes dumped\n";
+  # print "enter eq_hashes\n";
+  # print Dumper($a, $b);
+  # print "eq_hashes dumped\n";
 
   return 0 unless (ref $a eq ref{} );
   return 0 unless (ref $b eq ref{} );
-  print "eq_hashes after reftest\n";
+  # print "eq_hashes after reftest\n";
   return 0 unless (scalar(keys %$a) == scalar(keys %$b));
-  print "eq_hashes after length cmp\n";
+  # print "eq_hashes after length cmp\n";
 
   while (my ($k, $v) = each %$a) {
     return 0 unless ($v eq $b->{$k});
   }
-  print "returning 1 \n";
+  # print "returning 1 \n";
   return 1;
 }
 
