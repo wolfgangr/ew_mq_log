@@ -90,15 +90,26 @@ sub parse_ecowitt {
 sub do_auxs {
   my $hr = shift @_;
   my $auxs = parse_aux($hr);
+
+  # no strict "vars";
+  CORE::state $old_auxs = \() ; # static, ininitialized only once
+  # use strict "vars";
+
   debug_print(3, Dumper($auxs));
 
   for my $sn (0 .. $#$auxs) {
     next unless (defined($$auxs[$sn]));
-    printf ("dummy do sensor number %d -> %s \n", $sn,
-         scalar(keys %{$$auxs[$sn]} )  );
+    # skip update if values haven't changed
+    if defined($old_auxs[$sn]) {
+      next if eq_hash($$auxs[$sn] , $$old_auxs[$sn]);
+    }
+    printf "dummy do sensor number %d -> %s \n", $sn,
+         scalar(keys %{$$auxs[$sn]} )  ;
     log_aux( $hr->{'dateutc'}, $station, $sn,  $$auxs[$sn]  );
   }
 
+  $old_auxs = $auxs ; # hope that assigning ref effectively clones
+  # use strict "vars";
 }
 
 
@@ -206,6 +217,18 @@ sub parse_DB_creds {
 }
 
 
+# eq_hashes(\%a, \%b)
+# returns 1 if they are equal, 0 in not
+sub eq_hashes {
+  my ($a, $b) = @_;
+  return 0 unless (ref $a ne ref{} );
+  return 0 unless (ref $b ne ref{} );
+  return 0 unless (scalar(keys %$a) != scalar(keys %$b));
+  while (my ($k, $v) = each %$a) {
+    return 0 unless ($v eq $b->{$k});
+  }
+  return 1;
+}
 
 # debug_print($level, $content)
 sub debug_print {
