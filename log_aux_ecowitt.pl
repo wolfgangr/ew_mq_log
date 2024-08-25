@@ -65,15 +65,16 @@ sub do_ecowitt {
   # log_ecowitt($hr);
 
   # parse and process aux sensor data
-  my $auxs = parse_aux($hr);
-  debug_print(3, Dumper($auxs));
+  do_auxs($hr);
 
-  for my $sn (0 .. $#$auxs) {
-    next unless (defined($$auxs[$sn]));   
-    printf ("dummy do sensor number %d -> %s \n", $sn, 
-	 scalar(keys %{$$auxs[$sn]} )  ); 
-    log_aux( $hr->{'dateutc'}, $station, $sn,  $$auxs[$sn]  );
-  }
+  # my $auxs = parse_aux($hr);
+  # debug_print(3, Dumper($auxs));
+  # for my $sn (0 .. $#$auxs) {
+  #  next unless (defined($$auxs[$sn]));   
+  #  printf ("dummy do sensor number %d -> %s \n", $sn, 
+  #	 scalar(keys %{$$auxs[$sn]} )  ); 
+  #   log_aux( $hr->{'dateutc'}, $station, $sn,  $$auxs[$sn]  );
+  # }
   # exit;
 }
 
@@ -85,6 +86,21 @@ sub parse_ecowitt {
     my $hashref = $json->decode( $message );
     return $hashref;
 }
+
+sub do_auxs {
+  my $hr = shift @_;
+  my $auxs = parse_aux($hr);
+  debug_print(3, Dumper($auxs));
+
+  for my $sn (0 .. $#$auxs) {
+    next unless (defined($$auxs[$sn]));
+    printf ("dummy do sensor number %d -> %s \n", $sn,
+         scalar(keys %{$$auxs[$sn]} )  );
+    log_aux( $hr->{'dateutc'}, $station, $sn,  $$auxs[$sn]  );
+  }
+
+}
+
 
 # \@sensors =  parse_aux($json_hashref)
 sub parse_aux {
