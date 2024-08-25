@@ -92,7 +92,7 @@ sub do_auxs {
   my $auxs = parse_aux($hr);
 
   # no strict "vars";
-  CORE::state $old_auxs = \() ; # static, ininitialized only once
+  CORE::state $old_auxs = []; # \() ; # static, ininitialized only once
   # use strict "vars";
 
   debug_print(3, Dumper($auxs));
@@ -100,8 +100,8 @@ sub do_auxs {
   for my $sn (0 .. $#$auxs) {
     next unless (defined($$auxs[$sn]));
     # skip update if values haven't changed
-    if defined($old_auxs[$sn]) {
-      next if eq_hash($$auxs[$sn] , $$old_auxs[$sn]);
+    if (defined($$old_auxs[$sn])) {
+      next if eq_hashes($$auxs[$sn] , $$old_auxs[$sn]);
     }
     printf "dummy do sensor number %d -> %s \n", $sn,
          scalar(keys %{$$auxs[$sn]} )  ;
@@ -221,12 +221,20 @@ sub parse_DB_creds {
 # returns 1 if they are equal, 0 in not
 sub eq_hashes {
   my ($a, $b) = @_;
-  return 0 unless (ref $a ne ref{} );
-  return 0 unless (ref $b ne ref{} );
-  return 0 unless (scalar(keys %$a) != scalar(keys %$b));
+  print "enter eq_hashes\n";
+  print Dumper($a, $b);
+  print "eq_hashes dumped\n";
+
+  return 0 unless (ref $a eq ref{} );
+  return 0 unless (ref $b eq ref{} );
+  print "eq_hashes after reftest\n";
+  return 0 unless (scalar(keys %$a) == scalar(keys %$b));
+  print "eq_hashes after length cmp\n";
+
   while (my ($k, $v) = each %$a) {
     return 0 unless ($v eq $b->{$k});
   }
+  print "returning 1 \n";
   return 1;
 }
 
