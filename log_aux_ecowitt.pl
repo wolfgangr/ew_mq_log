@@ -16,9 +16,9 @@ my $station = 1;
 my $timefmt =  '%Y-%m-%d %H:%M:%S';
 
 my $aux_topic = "wetter/pleussen/aux";
-my $aux_dtime = 600 ; # max time in s between messages if nothing special happens
-my $aux_dtemp = 1   ; # temp diff in °C to trigger a message
-my $aux_dhum  = 2   ; # humidity diff in % to trigger a message
+my $aux_dtime = 180;  # 600 ; # max time in s between messages if nothing special happens
+my $aux_dtemp = 0.5 ; #1   ; # temp diff in °C to trigger a message
+my $aux_dhum  = 2   ; # 3humidity diff in % to trigger a message
 
 my $db_creds ="my.cnf";
 
