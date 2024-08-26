@@ -16,9 +16,9 @@ my $station = 1;
 my $timefmt =  '%Y-%m-%d %H:%M:%S';
 
 my $aux_topic = "wetter/pleussen/aux";
-my $aux_dtime = 180;  # 600 ; # max time in s between messages if nothing special happens
-my $aux_dtemp = 0.5 ; #1   ; # temp diff in °C to trigger a message
-my $aux_dhum  = 2   ; # 3humidity diff in % to trigger a message
+my $aux_dtime = 180 ; # 600 ; # max time in s between messages if nothing special happens
+my $aux_dtemp = 0.5 ; # 1   ; # temp diff in °C to trigger a message
+my $aux_dhum  = 2   ; # 3   ; # humidity diff in % to trigger a message
 
 my $db_creds ="my.cnf";
 
@@ -182,23 +182,17 @@ sub pub_aux {
 
   # test for any reason to mq pub
   if ( ! defined ($$last_auxs_pub[$sn])  )  {
-    # print "do the >online< thing\n";
     $reason = "online";
     # return;
   } elsif ( 0  )  {  # ### TBD ###
-    # print "do the >offline< thing\n";
     $reason = "offline";
   } elsif ($epocs - $$last_auxs_pub[$sn]->{'epocs'} >= $aux_dtime) {
-    # print "do the >timeout< thing\n";
     $reason = "max_time";
   } elsif ( abs( $shr->{'temp'} - $$last_auxs_pub[$sn]->{'temp'} ) >= $aux_dtemp) { 
-    # print "do the >temp diff< thing\n";
     $reason = "temp_change";
   } elsif ( abs( $shr->{'humidity'} - $$last_auxs_pub[$sn]->{'humidity'} ) >= $aux_dhum) {
-    # print "do the >humidity diff< thing\n";
     $reason = "hum_change";
   } elsif ( $shr->{'batt'} &&  $shr->{'batt'} ne $$last_auxs_pub[$sn]->{'batt'} ) {
-    # print "do the >batt diff< thing\n";
     $reason = "batt_change";
   }
 
@@ -212,8 +206,26 @@ sub pub_aux {
     $this_auxs_pub{$k} = $shr->{$k};
   }
   $$last_auxs_pub[$sn] = \%this_auxs_pub;
-  debug_print(3, Dumper("auxs pub payload", \%this_auxs_pub));
+  debug_print(3, Dumper("auxs pub data", \%this_auxs_pub));
+  
+  my $pubstr = hash2json(\@mq_fields, \%this_auxs_pub);
+  my $topic  = sprintf ("%s/%d/%d", $aux_topic , $stat, $sn);
+  debug_print(3, sprintf("auxs pub to %s \n\tpayload: %s\n", $topic, $pubstr ));
+
+  # $mqtt->publish("topic/here" => "Message here");
+  $mqtt->publish( $topic => $pubstr); 
 }
+
+# hash2json(\@fieldlist, \%valuehash)
+sub hash2json {
+  my ($fields, $vals) = @_;
+  
+  my $rv = join ( ',', map { 
+            sprintf (' "%s" : "%s" ', $_, $vals->{$_} ) 
+       } (@$fields) );
+  return sprintf("{%s}", $rv);
+}
+
 
 #----------------------
 
