@@ -194,10 +194,10 @@ sub pub_aux {
   } elsif ( abs( $shr->{'temp'} - $$last_auxs_pub[$sn]->{'temp'} ) >= $aux_dtemp) { 
     # print "do the >temp diff< thing\n";
     $reason = "temp_change";
-  } elsif ( abs( $shr->{'humidty'} - $$last_auxs_pub[$sn]->{'humidity'} ) >= $aux_dhum) {
+  } elsif ( abs( $shr->{'humidity'} - $$last_auxs_pub[$sn]->{'humidity'} ) >= $aux_dhum) {
     # print "do the >humidity diff< thing\n";
     $reason = "hum_change";
-  } elsif (  $shr->{'batt'} ne $$last_auxs_pub[$sn]->{'batt'} ) {
+  } elsif ( $shr->{'batt'} &&  $shr->{'batt'} ne $$last_auxs_pub[$sn]->{'batt'} ) {
     # print "do the >batt diff< thing\n";
     $reason = "batt_change";
   }
@@ -206,7 +206,7 @@ sub pub_aux {
 
   # prepare data for mq pub
   my @mq_fields = qw(dateutc temp humidity batt reason);
-  my %this_auxs_pub = ( dateutc => $idx, reason => $reason  ) ;
+  my %this_auxs_pub = ( dateutc => $idx, reason => $reason , epocs => $epocs  ) ;
   foreach my $i (1 .. $#mq_fields-1) {
     my $k = $mq_fields[$i];
     $this_auxs_pub{$k} = $shr->{$k};
