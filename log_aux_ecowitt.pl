@@ -171,6 +171,8 @@ sub log_aux {
 #  pub_aux( $hr->{'dateutc'}, $station, $sn,  $$auxs[$sn]  );
 sub pub_aux {
   my ($epocs, $idx, $stat, $sn, $shr) = @_;
+
+  print " ~~~~~==== entered pub_aux ====~~~~~ \n"; 
   debug_print(2, sprintf("--- pub_aux - station: %d, sensor: %d, utc-time: %s, epocs: %d\n", 
 		$stat, $sn, $idx, $epocs));
   debug_print(3, Dumper($shr));
@@ -178,28 +180,39 @@ sub pub_aux {
   CORE::state $last_auxs_pub = []; 
   my $reason = "";
 
-  print " ~~~~~==== entered pub_aux ====~~~~~ \n"; 
+  # test for any reason to mq pub
   if ( ! defined ($$last_auxs_pub[$sn])  )  {
-    print "do the >online< thing\n";
+    # print "do the >online< thing\n";
     $reason = "online";
     # return;
   } elsif ( 0  )  {  # ### TBD ###
-    print "do the >offline< thing\n";
+    # print "do the >offline< thing\n";
     $reason = "offline";
   } elsif ($epocs - $$last_auxs_pub[$sn]->{'epocs'} >= $aux_dtime) {
-    print "do the >timeout< thing\n";
+    # print "do the >timeout< thing\n";
     $reason = "max_time";
   } elsif ( abs( $shr->{'temp'} - $$last_auxs_pub[$sn]->{'temp'} ) >= $aux_dtemp) { 
-    print "do the >temp diff< thing\n";
+    # print "do the >temp diff< thing\n";
     $reason = "temp_change";
   } elsif ( abs( $shr->{'humidty'} - $$last_auxs_pub[$sn]->{'humidity'} ) >= $aux_dhum) {
-    print "do the >humidity diff< thing\n";
+    # print "do the >humidity diff< thing\n";
     $reason = "hum_change";
   } elsif (  $shr->{'batt'} ne $$last_auxs_pub[$sn]->{'batt'} ) {
-    print "do the >batt diff< thing\n";
+    # print "do the >batt diff< thing\n";
     $reason = "batt_change";
   }
 
+  return if not $reason;
+
+  # prepare data for mq pub
+  my @mq_fields = qw(dateutc temp humidity batt reason);
+  my %this_auxs_pub = ( dateutc => $idx, reason => $reason  ) ;
+  foreach my $i (1 .. $#mq_fields-1) {
+    my $k = $mq_fields[$i];
+    $this_auxs_pub{$k} = $shr->{$k};
+  }
+  $$last_auxs_pub[$sn] = \%this_auxs_pub;
+  debug_print(3, Dumper("auxs pub payload", \%this_auxs_pub));
 }
 
 #----------------------
