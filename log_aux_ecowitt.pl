@@ -155,7 +155,6 @@ sub parse_aux {
 # log single aux sensor
 # log_aux( idx, station#, sensor#, data-hash)
 sub log_aux {
-  # print (Dumper (\@_));
   my ($idx, $stat, $sn, $shr) = @_;
   debug_print(4, (Dumper($idx, $stat, $sn, $shr)));
 
@@ -164,7 +163,6 @@ sub log_aux {
   $sql .= sprintf (",\n `station`    = '%3d'  ", $stat);
   $sql .= sprintf (",\n `sensor`     = '%3d'  ", $sn);
   # $sql .= sprintf (",\n `hum_out`    = '%s'  ", $data->{'humidity'});
-  # foreach my $k (keys %$shr) {
   while (my ($k, $v) = each %$shr) {
     $sql .= sprintf (",\n `%s`     = '%s'  ", $k, $v);
   }
@@ -175,7 +173,6 @@ sub log_aux {
   # execute sql statement
   my $affected = $dbh->do($sql);
   debug_print (2, "\t$affected Datasets of sensors updated\n");
- 
 }
 
 #  pub_aux( $hr->{'dateutc'}, $station, $sn,  $$auxs[$sn]  );
@@ -222,7 +219,6 @@ sub pub_aux {
   my $topic  = sprintf ("%s/%d/%d", $aux_topic , $stat, $sn);
   debug_print(3, sprintf("auxs pub to %s \n\tpayload: %s\n", $topic, $pubstr ));
 
-  # $mqtt->publish("topic/here" => "Message here");
   # $mqtt->publish( $topic => $pubstr); 
   $mqtt->retain( $topic => $pubstr);
 }
@@ -250,11 +246,11 @@ sub log_ecowitt {
 }
 
 sub build_ew_SQL {
-#  my $timestamp = strftime "%Y-%m-%d %H:%M:%S", gmtime;
+  #  my $timestamp = strftime "%Y-%m-%d %H:%M:%S", gmtime;
   my $data = pop @_;
 
   my $sql = "INSERT INTO `raw` SET";
-#  $sql .= sprintf (" \n `idx`        = '%s'   ", $timestamp); 
+  #  $sql .= sprintf (" \n `idx`        = '%s'   ", $timestamp); 
   $sql .= sprintf (" \n `idx`        = '%s'   ", $data->{'dateutc'});
   $sql .= sprintf (",\n `station`    = '%3d'  ", $station);
   $sql .= sprintf (",\n `hum_out`    = '%s'  ", $data->{'humidity'});
@@ -270,7 +266,7 @@ sub build_ew_SQL {
   $sql .= sprintf (",\n `uv_rad`     = '%s'  ", $data->{'uv'});
   $sql .= sprintf (",\n `batt`       = '%s'  ", $data->{'wh65batt'}); 
   $sql .= " ;\n" ;
-  # debug_print(3, $sql);
+  debug_print(4, $sql);
   return $sql
 }
 
@@ -307,20 +303,14 @@ sub parse_DB_creds {
 # returns 1 if they are equal, 0 in not
 sub eq_hashes {
   my ($a, $b) = @_;
-  # print "enter eq_hashes\n";
-  # print Dumper($a, $b);
-  # print "eq_hashes dumped\n";
 
   return 0 unless (ref $a eq ref{} );
   return 0 unless (ref $b eq ref{} );
-  # print "eq_hashes after reftest\n";
   return 0 unless (scalar(keys %$a) == scalar(keys %$b));
-  # print "eq_hashes after length cmp\n";
 
   while (my ($k, $v) = each %$a) {
     return 0 unless ($v eq $b->{$k});
   }
-  # print "returning 1 \n";
   return 1;
 }
 
@@ -328,7 +318,6 @@ sub eq_hashes {
 sub debug_print {
   my $level = shift @_;
   print STDERR @_ if ( $level <= $debug) ;
-  # print  @_ if $debug ;
 }
 
 
