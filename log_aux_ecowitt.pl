@@ -11,7 +11,7 @@ use Time::Piece; # from POSIX time as delivered by the station to epocs for calc
 
 
 my $mqtt_server = "homeserver.rosner.lokal";
-my $ew_topic = "wetter/test";
+my $ew_topic = "wetter/pleussen/ew";
 my $station = 1;
 my $timefmt =  '%Y-%m-%d %H:%M:%S';
 
@@ -22,7 +22,7 @@ my $aux_dhum  =   3; # 2   ; # 3   ; # humidity diff in % to trigger a message
 
 my $db_creds ="my.cnf";
 
-my $debug = 3;
+my $debug = 2;
 
 # ======= eo config ============
 
@@ -76,7 +76,7 @@ sub do_ecowitt {
   my $hr = parse_ecowitt(@_);	
   debug_print(4, Dumper($hr)); 
   # disable for dev of aux sensor stuff
-  # log_ecowitt($hr);
+  log_ecowitt($hr);
 
   # parse and process aux sensor data
   do_auxs($hr);
