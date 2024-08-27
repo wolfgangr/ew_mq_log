@@ -231,7 +231,7 @@ sub hash2json {
   my ($fields, $vals) = @_;
   
   my $rv = join ( ',', map { 
-            sprintf (' "%s" : "%s" ', $_, $vals->{$_} // "" ) 
+            sprintf (' "%s" : "%s" ', $_, ($vals->{$_} // "") ) 
        } (@$fields) );
   return sprintf("{%s}", $rv);
 }
