@@ -143,10 +143,13 @@ sub parse_aux {
   my $data = pop @_;
   my @sensors = ();
   foreach my $key (keys %$data) {
-    next unless ( $key =~  /^((?:temp)|(?:humidity)|(?:batt))((?:\d)|(?:in))$/ ) ;
+    next unless ( $key =~  /^((?:temp)|(?:humidity)|(?:batt))((?:\d)|(?:in)|(:?))$/ ) ;
     if ($1 and $2) {
       my $ix = ($2 eq 'in') ? 0 : $2 ;
       $sensors[$ix]{$1} = $data->{$key} ;
+    } elsif ($1) {
+      # log out temp and hum as sensor #9
+      $sensors[9]{$1} = $data->{$key} ; 
     }
   }
   return \@sensors;
@@ -228,7 +231,7 @@ sub hash2json {
   my ($fields, $vals) = @_;
   
   my $rv = join ( ',', map { 
-            sprintf (' "%s" : "%s" ', $_, $vals->{$_} ) 
+            sprintf (' "%s" : "%s" ', $_, $vals->{$_} // "" ) 
        } (@$fields) );
   return sprintf("{%s}", $rv);
 }
