@@ -11,7 +11,7 @@ use Time::Piece; # from POSIX time as delivered by the station to epocs for calc
 
 
 my $mqtt_server = "homeserver.rosner.lokal";
-my $ew_topic = "wetter/pleussen/ew";
+my $ew_topic = "wetter/pleussen/station";
 my $station = 1;
 my $timefmt =  '%Y-%m-%d %H:%M:%S';
 
@@ -22,10 +22,16 @@ my $aux_dhum  =   3; # 2   ; # 3   ; # humidity diff in % to trigger a message
 
 my $db_creds ="my.cnf";
 
-my $debug = 2;
+my $debug = 1;
 
 # ======= eo config ============
 
+debug_print(1, sprintf("Listening to MQTT server at <%s>, topic <%s>\n", 
+		$mqtt_server, $ew_topic));
+debug_print(1, sprintf("Publishing aux sensors to topic <%s>\n", 
+		$aux_topic));
+debug_print(2, sprintf("   aux filter settings: %d °C, %d %% humidity, %d s timeout\n",  
+		$aux_dtemp, $aux_dhum, $aux_dtime));
 
 my $mqtt = Net::MQTT::Simple->new($mqtt_server);
 my $json = JSON->new->allow_nonref;
@@ -50,6 +56,10 @@ my $dbh = DBI->connect($dsn, $user, $passwd)
 
 debug_print(1,  "\t...connected to database \n\n") ;
 # exit;
+
+
+
+
 
 #==============
 
@@ -172,7 +182,7 @@ sub log_aux {
 sub pub_aux {
   my ($epocs, $idx, $stat, $sn, $shr) = @_;
 
-  print " ~~~~~==== entered pub_aux ====~~~~~ \n"; 
+  debug_print(4, " ~~~~~==== entered pub_aux ====~~~~~ \n"); 
   debug_print(2, sprintf("--- pub_aux - station: %d, sensor: %d, utc-time: %s, epocs: %d\n", 
 		$stat, $sn, $idx, $epocs));
   debug_print(3, Dumper($shr));
@@ -231,7 +241,7 @@ sub hash2json {
 #----------------------
 
 sub log_ecowitt {
-  my $sql = build_ew_SQL(@_[0]);
+  my $sql = build_ew_SQL($_[0]);
   debug_print(3, $sql);
 
   # execute sql statement
